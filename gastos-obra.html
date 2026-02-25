@@ -433,8 +433,14 @@
           <input type="text" id="fDesc" placeholder="Ej: Cemento, pintura…">
         </div>
         <div class="form-group">
-          <label>Monto ARS ($)</label>
-          <input type="number" id="fMonto" placeholder="0.00" step="0.01" oninput="calcUsd()">
+          <label>Monto</label>
+          <div style="display:flex;gap:6px;">
+            <select id="fMoneda" onchange="calcUsd()" style="width:80px;flex-shrink:0;">
+              <option value="ARS">$ ARS</option>
+              <option value="USD">USD</option>
+            </select>
+            <input type="number" id="fMonto" placeholder="0.00" step="0.01" oninput="calcUsd()" style="flex:1;">
+          </div>
         </div>
         <div class="form-group">
           <label>Fecha</label>
@@ -797,11 +803,18 @@ async function guardarGasto() {
   if (!desc)       { shake('fDesc'); return; }
   if (!monto || monto <= 0) { shake('fMonto'); return; }
 
+  const moneda = document.getElementById('fMoneda').value;
+  const rate   = getUsdDelDia();
+  const montoArs = moneda === 'USD' ? monto * rate : monto;
+  const montoUsd = moneda === 'USD' ? monto : monto / rate;
+
   const g = {
     id: Date.now(),
-    obra: obraActiva, cat: catActiva, desc, monto,
+    obra: obraActiva, cat: catActiva, desc, moneda,
+    monto: montoArs,
+    montoOriginal: monto,
     proveedor: document.getElementById('fProveedor').value.trim(),
-    usdRate: getUsdDelDia(), usd: monto / getUsdDelDia(),
+    usdRate: rate, usd: montoUsd,
     fecha: document.getElementById('fFecha').value,
     notas: document.getElementById('fNotas').value.trim(),
     files: [], driveLinks: []
@@ -841,6 +854,7 @@ async function guardarGasto() {
   // Reset form
   document.getElementById('fDesc').value      = '';
   document.getElementById('fMonto').value     = '';
+  document.getElementById('fMoneda').value    = 'ARS';
   document.getElementById('fProveedor').value = '';
   document.getElementById('fNotas').value     = '';
   attachedFiles = [];
@@ -906,16 +920,23 @@ function getUsdDelDia() {
 }
 
 function calcUsd() {
-  const m   = parseFloat(document.getElementById('fMonto').value);
-  const row = document.getElementById('convRow');
+  const m      = parseFloat(document.getElementById('fMonto').value);
+  const moneda = document.getElementById('fMoneda').value;
+  const row    = document.getElementById('convRow');
   if (!m || m <= 0) { row.style.display = 'none'; return; }
   const rate  = getUsdDelDia();
   const fecha = document.getElementById('fFecha').value;
   const hoy   = new Date().toISOString().split('T')[0];
   const esFechaHistorica = fecha && fecha !== hoy;
   row.style.display = 'flex';
-  document.getElementById('convVal').textContent = 'USD ' + (m/rate).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById('convRate').textContent = (esFechaHistorica && usdFecha ? '📅 histórico ' : '') + '1 USD = $' + fmt(rate) + ' (blue)';
+
+  if (moneda === 'ARS') {
+    document.getElementById('convVal').textContent = 'USD ' + (m/rate).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('convRate').textContent = (esFechaHistorica && usdFecha ? '📅 histórico · ' : '') + '1 USD = $' + fmt(rate) + ' (blue)';
+  } else {
+    document.getElementById('convVal').textContent = '$ ' + fmt(m * rate) + ' ARS';
+    document.getElementById('convRate').textContent = (esFechaHistorica && usdFecha ? '📅 histórico · ' : '') + '1 USD = $' + fmt(rate) + ' (blue)';
+  }
 }
 
 // ─── FILES ───────────────────────────────────────────────────
@@ -968,8 +989,8 @@ function renderGastos() {
       </div>
       <div class="gasto-montos">
         <div class="gasto-actions"><button class="del-btn" onclick="delGasto(${g.id})">✕</button></div>
-        <div class="gasto-ars">$${fmt(g.monto)}</div>
-        <div class="gasto-usd">≈ USD ${Number(g.usd).toFixed(2)}</div>
+        <div class="gasto-ars">${g.moneda === 'USD' ? 'USD ' + Number(g.montoOriginal).toFixed(2) : '$' + fmt(g.monto)}</div>
+        <div class="gasto-usd">${g.moneda === 'USD' ? '≈ $' + fmt(g.monto) + ' ARS' : '≈ USD ' + Number(g.usd).toFixed(2)}</div>
         <div class="gasto-date">${fmtDate(g.fecha)} · $${fmt(g.usdRate)}/USD</div>
       </div>`;
     el.appendChild(div);
