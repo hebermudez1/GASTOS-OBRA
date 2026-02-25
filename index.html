@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0045)file:///C:/Users/bermu/Downloads/index_1.html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gastos Obra">
 <title>Gastos Obra</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<link href="./Gastos Obra_files/css2" rel="stylesheet">
 <style>
   :root {
     --bg: #0f0e0c; --surface: #1a1814; --surface2: #242118;
@@ -369,13 +369,13 @@
   <div class="logo">Gastos <span>Obra</span></div>
   <div class="header-right">
     <div class="sync-status">
-      <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">sin configurar</span>
+      <div class="sync-dot err" id="syncDot"></div>
+      <span id="syncLabel">error de conexión</span>
     </div>
     <a class="usd-badge" href="https://dolarhoy.com/" target="_blank">
       <div class="usd-dot"></div>
       <span style="color:var(--muted);font-size:0.63rem;">Blue</span>
-      <span class="usd-val" id="headerUsd">…</span>
+      <span class="usd-val" id="headerUsd">$1.435</span>
     </a>
   </div>
 </header>
@@ -394,9 +394,9 @@
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="setTab('cargar')">+ Cargar</button>
-    <button class="tab" onclick="setTab('gastos')">Gastos</button>
-    <button class="tab" onclick="setTab('resumen')">Resumen</button>
+    <button class="tab active" onclick="setTab(&#39;cargar&#39;)">+ Cargar</button>
+    <button class="tab" onclick="setTab(&#39;gastos&#39;)">Gastos</button>
+    <button class="tab" onclick="setTab(&#39;resumen&#39;)">Resumen</button>
   </div>
 
   <!-- ══════════════ PANEL: CARGAR ══════════════ -->
@@ -405,14 +405,22 @@
     <!-- OBRAS -->
     <div class="obras-selector">
       <div class="obras-selector-label">Seleccioná la obra</div>
-      <div class="obras-grid" id="obrasGrid"></div>
+      <div class="obras-grid" id="obrasGrid"><div class="obra-card active">
+      <div class="obra-card-check">✓</div>
+      <div class="obra-card-name">LOTE 18</div>
+      <div class="obra-card-sub">SAN SIMON</div>
+    </div><div class="obra-card">
+      <div class="obra-card-check"></div>
+      <div class="obra-card-name">LOTE 4</div>
+      <div class="obra-card-sub">SAN SIMON</div>
+    </div><div class="obra-card add-obra"><div class="plus">＋</div><span>Nueva obra</span></div></div>
     </div>
 
     <!-- CATEGORÍAS -->
     <div class="cats-section">
       <div class="cats-label">Categoría</div>
       <div class="cats-tabbar-wrap">
-        <div class="cats-tabbar" id="catsScroll"></div>
+        <div class="cats-tabbar" id="catsScroll"><button class="cat-tab active">Materiales</button><button class="cat-tab">Mano de obra</button><button class="cat-tab">Plomería</button><button class="cat-tab">Electricidad</button><button class="cat-tab">Calefacción</button><button class="cat-tab">Refrigeración</button><button class="cat-tab">Pileta</button><button class="cat-tab">Expensas</button><button class="cat-tab">Pintura</button><button class="cat-tab">Combustible</button><button class="cat-tab">Varios</button><button class="cat-tab manage-tab" title="Gestionar categorías">⚙</button></div>
       </div>
     </div>
 
@@ -421,10 +429,10 @@
       <!-- resumen obra + cat seleccionada -->
       <div class="obra-cat-summary" id="obraCatSummary">
         <span class="lbl">Obra:</span>
-        <span class="val" id="summaryObra">—</span>
+        <span class="val" id="summaryObra">LOTE 18 - SAN SIMON</span>
         <span class="sep">·</span>
         <span class="lbl">Cat:</span>
-        <span class="val" id="summaryCat">—</span>
+        <span class="val" id="summaryCat">Materiales</span>
       </div>
 
       <div class="form-grid">
@@ -468,14 +476,14 @@
       <div class="form-group full" style="margin-top:13px;">
         <label>Comprobante / Foto</label>
         <div class="file-drop" id="fileDrop">
-          <input type="file" multiple accept="image/*,.pdf" id="fileInput" onchange="handleFiles(this.files)">
+          <input type="file" multiple="" accept="image/*,.pdf" id="fileInput" onchange="handleFiles(this.files)">
           <span class="fd-icon">📎</span>
           <div class="fd-hint">Tocá para adjuntar imagen o PDF</div>
         </div>
         <div class="file-previews" id="filePreviews"></div>
       </div>
 
-      <button class="btn-primary" id="submitBtn" onclick="guardarGasto()">↳ Registrar gasto</button>
+      <button class="btn-primary" id="submitBtn" onclick="guardarGasto()">↳ Registrar y subir a Drive</button>
     </div>
   </div>
 
@@ -483,15 +491,91 @@
   <div class="panel" id="tab-gastos">
     <div class="list-controls">
       <input class="search-box" type="text" placeholder="🔍 Buscar…" oninput="renderGastos()" id="searchInput">
-      <select class="filter-select" onchange="renderGastos()" id="filterObra">
-        <option value="">Todas las obras</option>
-      </select>
-      <select class="filter-select" onchange="renderGastos()" id="filterCat">
-        <option value="">Categorías</option>
-      </select>
+      <select class="filter-select" onchange="renderGastos()" id="filterObra"><option value="">Todas las obras</option><option>LOTE 18 - SAN SIMON</option><option>LOTE 4 - SAN SIMON</option></select>
+      <select class="filter-select" onchange="renderGastos()" id="filterCat"><option value="">Categorías</option><option>Materiales</option><option>Mano de obra</option><option>Plomería</option><option>Electricidad</option><option>Calefacción</option><option>Refrigeración</option><option>Pileta</option><option>Expensas</option><option>Pintura</option><option>Combustible</option><option>Varios</option></select>
       <button class="export-btn" onclick="exportCSV()">⬇ CSV</button>
     </div>
-    <div id="gastosList"></div>
+    <div id="gastosList"><div class="gasto-item">
+      <div>
+        <div class="gasto-nombre">Medidor</div>
+        <div class="gasto-meta">
+          <span class="tag-obra">LOTE 18 - SAN SIMON</span>
+          <span class="tag-cat">Mano de obra</span>
+          
+          
+          
+        </div>
+      </div>
+      <div class="gasto-montos">
+        <div class="gasto-actions"><button class="del-btn" onclick="delGasto(1772002779909)">✕</button></div>
+        <div class="gasto-ars">$500.000</div>
+        <div class="gasto-usd">≈ USD 349.65</div>
+        <div class="gasto-date">19T00:00:00.000Z/02/2026 · $1.430/USD</div>
+      </div></div><div class="gasto-item">
+      <div>
+        <div class="gasto-nombre">Pago colegio</div>
+        <div class="gasto-meta">
+          <span class="tag-obra">LOTE 18 - SAN SIMON</span>
+          <span class="tag-cat">Varios</span>
+          
+          
+          
+        </div>
+      </div>
+      <div class="gasto-montos">
+        <div class="gasto-actions"><button class="del-btn" onclick="delGasto(1772002876947)">✕</button></div>
+        <div class="gasto-ars">$1.224.690</div>
+        <div class="gasto-usd">≈ USD 856.43</div>
+        <div class="gasto-date">19T00:00:00.000Z/02/2026 · $1.430/USD</div>
+      </div></div><div class="gasto-item">
+      <div>
+        <div class="gasto-nombre">Caaitba</div>
+        <div class="gasto-meta">
+          <span class="tag-obra">LOTE 18 - SAN SIMON</span>
+          <span class="tag-cat">Varios</span>
+          
+          
+          
+        </div>
+      </div>
+      <div class="gasto-montos">
+        <div class="gasto-actions"><button class="del-btn" onclick="delGasto(1772002909365)">✕</button></div>
+        <div class="gasto-ars">$3.711.183</div>
+        <div class="gasto-usd">≈ USD 2595.23</div>
+        <div class="gasto-date">25T00:00:00.000Z/02/2026 · $1.430/USD</div>
+      </div></div><div class="gasto-item">
+      <div>
+        <div class="gasto-nombre">Lote</div>
+        <div class="gasto-meta">
+          <span class="tag-obra">LOTE 18 - SAN SIMON</span>
+          <span class="tag-cat">Varios</span>
+          
+          
+          
+        </div>
+      </div>
+      <div class="gasto-montos">
+        <div class="gasto-actions"><button class="del-btn" onclick="delGasto(1772003632993)">✕</button></div>
+        <div class="gasto-ars">$44.330.000</div>
+        <div class="gasto-usd">≈ USD 31000.00</div>
+        <div class="gasto-date">25T00:00:00.000Z/02/2026 · $1.430/USD</div>
+      </div></div><div class="gasto-item">
+      <div>
+        <div class="gasto-nombre">Lote</div>
+        <div class="gasto-meta">
+          <span class="tag-obra">LOTE 4 - SAN SIMON</span>
+          <span class="tag-cat">Varios</span>
+          
+          
+          
+        </div>
+      </div>
+      <div class="gasto-montos">
+        <div class="gasto-actions"><button class="del-btn" onclick="delGasto(1772003961465)">✕</button></div>
+        <div class="gasto-ars">$42.900.000</div>
+        <div class="gasto-usd">≈ USD 30000.00</div>
+        <div class="gasto-date">25T00:00:00.000Z/02/2026 · $1.430/USD</div>
+      </div></div></div>
   </div>
 
   <!-- ══════════════ PANEL: RESUMEN ══════════════ -->
@@ -502,21 +586,51 @@
         <a class="dolar-link" href="https://dolarhoy.com/" target="_blank">dolarhoy.com ↗</a>
       </div>
       <div class="dolar-grid">
-        <div class="dolar-tipo"><div class="dolar-tipo-label">Oficial</div><div class="dolar-tipo-val c-blue" id="dolarOficial">—</div></div>
-        <div class="dolar-tipo"><div class="dolar-tipo-label">Blue</div><div class="dolar-tipo-val c-yellow" id="dolarBlue">—</div></div>
-        <div class="dolar-tipo"><div class="dolar-tipo-label">MEP</div><div class="dolar-tipo-val c-green" id="dolarMep">—</div></div>
+        <div class="dolar-tipo"><div class="dolar-tipo-label">Oficial</div><div class="dolar-tipo-val c-blue" id="dolarOficial">$1.405</div></div>
+        <div class="dolar-tipo"><div class="dolar-tipo-label">Blue</div><div class="dolar-tipo-val c-yellow" id="dolarBlue">$1.435</div></div>
+        <div class="dolar-tipo"><div class="dolar-tipo-label">MEP</div><div class="dolar-tipo-val c-green" id="dolarMep">$1.410</div></div>
       </div>
-      <div class="dolar-source" id="dolarSource">cargando…</div>
+      <div class="dolar-source" id="dolarSource">✓ Tiempo real · dolarhoy.com</div>
     </div>
 
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-label">Total ARS</div><div class="stat-value" id="totalArs">$0</div><div class="stat-sub" id="totalUsd">USD 0</div></div>
-      <div class="stat-card"><div class="stat-label">Gastos</div><div class="stat-value" id="totalGastos">0</div><div class="stat-sub">registros</div></div>
-      <div class="stat-card"><div class="stat-label">Obras</div><div class="stat-value" id="totalObras">0</div><div class="stat-sub">activas</div></div>
+      <div class="stat-card"><div class="stat-label">Total ARS</div><div class="stat-value" id="totalArs">$92.665.873</div><div class="stat-sub" id="totalUsd">USD 64.801,31</div></div>
+      <div class="stat-card"><div class="stat-label">Gastos</div><div class="stat-value" id="totalGastos">5</div><div class="stat-sub">registros</div></div>
+      <div class="stat-card"><div class="stat-label">Obras</div><div class="stat-value" id="totalObras">2</div><div class="stat-sub">activas</div></div>
     </div>
 
-    <div style="font-family:'Fraunces',serif;font-style:italic;color:var(--muted);font-size:0.88rem;margin-bottom:12px;">Desglose por obra</div>
-    <div id="obrasResumen"></div>
+    <div style="font-family:&#39;Fraunces&#39;,serif;font-style:italic;color:var(--muted);font-size:0.88rem;margin-bottom:12px;">Desglose por obra</div>
+    <div id="obrasResumen"><div class="obra-resumen-card">
+      <div class="obra-resumen-header">
+        <div class="obra-resumen-nombre">LOTE 18 - SAN SIMON</div>
+        <div class="obra-resumen-total">
+          <div class="ars">$49.765.873</div>
+          <div class="usd">USD 34801.31</div>
+        </div>
+      </div>
+      <div class="obra-bar-bg"><div class="obra-bar-fill" style="width:100.0%"></div></div>
+      <div class="cats-breakdown">
+          <div class="cat-breakdown-item">
+            <span class="cat-breakdown-name">Varios</span>
+            <span class="cat-breakdown-val">$49.265.873</span>
+          </div>
+          <div class="cat-breakdown-item">
+            <span class="cat-breakdown-name">Mano de obra</span>
+            <span class="cat-breakdown-val">$500.000</span>
+          </div></div></div><div class="obra-resumen-card">
+      <div class="obra-resumen-header">
+        <div class="obra-resumen-nombre">LOTE 4 - SAN SIMON</div>
+        <div class="obra-resumen-total">
+          <div class="ars">$42.900.000</div>
+          <div class="usd">USD 30000.00</div>
+        </div>
+      </div>
+      <div class="obra-bar-bg"><div class="obra-bar-fill" style="width:86.2%"></div></div>
+      <div class="cats-breakdown">
+          <div class="cat-breakdown-item">
+            <span class="cat-breakdown-name">Varios</span>
+            <span class="cat-breakdown-val">$42.900.000</span>
+          </div></div></div></div>
   </div>
 
 </div><!-- /container -->
@@ -539,7 +653,7 @@
       <input type="text" id="nuevaObraInput" placeholder="Ej: LOTE 22 - SAN SIMON">
     </div>
     <div class="modal-btns">
-      <button class="btn-sec" onclick="closeModal('modalObra')">Cancelar</button>
+      <button class="btn-sec" onclick="closeModal(&#39;modalObra&#39;)">Cancelar</button>
       <button class="btn-primary-sm" onclick="agregarObra()">Crear</button>
     </div>
   </div>
@@ -555,7 +669,7 @@
       <input type="text" id="nuevaCatInput" placeholder="Ej: Impermeabilización…">
     </div>
     <div class="modal-btns">
-      <button class="btn-sec" onclick="closeModal('modalCat')">Cerrar</button>
+      <button class="btn-sec" onclick="closeModal(&#39;modalCat&#39;)">Cerrar</button>
       <button class="btn-primary-sm" onclick="agregarCat()">Agregar</button>
     </div>
   </div>
@@ -583,6 +697,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (SCRIPT_URL) loadGastosFromDrive();
   else renderGastos();
   renderResumen();
+
+  // Actualizar USD cuando la app vuelve al foco (iPhone Safari PWA)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      fetchDolar();
+      // Si la fecha es hoy, resetear usdFecha para que use el valor fresco
+      const fecha = document.getElementById('fFecha').value;
+      const hoy   = new Date().toISOString().split('T')[0];
+      if (fecha === hoy) usdFecha = null;
+    }
+  });
+  // También al volver de otra app en iPhone
+  window.addEventListener('pageshow', () => { fetchDolar(); });
 });
 
 // ─── SETUP ───────────────────────────────────────────────────
@@ -1082,5 +1209,6 @@ drop.addEventListener('dragover', e=>{e.preventDefault();drop.classList.add('dra
 drop.addEventListener('dragleave', ()=>drop.classList.remove('drag'));
 drop.addEventListener('drop', e=>{e.preventDefault();drop.classList.remove('drag');handleFiles(e.dataTransfer.files);});
 </script>
-</body>
-</html>
+
+
+</body></html>
