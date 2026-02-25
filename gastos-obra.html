@@ -438,7 +438,7 @@
         </div>
         <div class="form-group">
           <label>Fecha</label>
-          <input type="date" id="fFecha">
+          <input type="date" id="fFecha" onchange="onFechaChange()">
         </div>
         <div class="form-group">
           <label>Proveedor (opcional)</label>
@@ -801,7 +801,7 @@ async function guardarGasto() {
     id: Date.now(),
     obra: obraActiva, cat: catActiva, desc, monto,
     proveedor: document.getElementById('fProveedor').value.trim(),
-    usdRate: usdRates.blue, usd: monto / usdRates.blue,
+    usdRate: getUsdDelDia(), usd: monto / getUsdDelDia(),
     fecha: document.getElementById('fFecha').value,
     notas: document.getElementById('fNotas').value.trim(),
     files: [], driveLinks: []
@@ -871,13 +871,51 @@ function setTab(name) {
 }
 
 // ─── CALC USD ────────────────────────────────────────────────
+let usdFecha = null; // valor del dólar de la fecha seleccionada
+
+async function onFechaChange() {
+  const fecha = document.getElementById('fFecha').value;
+  const hoy   = new Date().toISOString().split('T')[0];
+  if (!fecha || fecha === hoy) {
+    usdFecha = null; // usar valor del día actual
+  } else {
+    usdFecha = await fetchDolarHistorico(fecha);
+  }
+  calcUsd();
+}
+
+async function fetchDolarHistorico(fecha) {
+  try {
+    // formato requerido por ambito: dd-MM-yyyy
+    const [y, m, d] = fecha.split('-');
+    const url = `https://mercados.ambito.com/dolar/informal/historico-general/${d}-${m}-${y}/${d}-${m}-${y}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    // data es array: [["Fecha","Compra","Venta"], ["dd/MM/yyyy", "1.400,00", "1.430,00"]]
+    if (data && data.length > 1) {
+      const venta = data[1][2]; // string tipo "1.430,00"
+      const valor = parseFloat(venta.replace(/\./g, '').replace(',', '.'));
+      if (!isNaN(valor) && valor > 0) return valor;
+    }
+  } catch(e) {}
+  return null; // fallback: usar valor actual
+}
+
+function getUsdDelDia() {
+  return usdFecha || usdRates.blue;
+}
+
 function calcUsd() {
-  const m = parseFloat(document.getElementById('fMonto').value);
+  const m   = parseFloat(document.getElementById('fMonto').value);
   const row = document.getElementById('convRow');
   if (!m || m <= 0) { row.style.display = 'none'; return; }
+  const rate  = getUsdDelDia();
+  const fecha = document.getElementById('fFecha').value;
+  const hoy   = new Date().toISOString().split('T')[0];
+  const esFechaHistorica = fecha && fecha !== hoy;
   row.style.display = 'flex';
-  document.getElementById('convVal').textContent = 'USD ' + (m/usdRates.blue).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById('convRate').textContent = '1 USD = $' + fmt(usdRates.blue) + ' (blue)';
+  document.getElementById('convVal').textContent = 'USD ' + (m/rate).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('convRate').textContent = (esFechaHistorica && usdFecha ? '📅 histórico ' : '') + '1 USD = $' + fmt(rate) + ' (blue)';
 }
 
 // ─── FILES ───────────────────────────────────────────────────
